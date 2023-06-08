@@ -1,0 +1,19 @@
+apiVersion: score.dev/v1b1
+
+metadata:
+  name: "akshita0-podinfo-test"
+
+service:
+  ports:
+    www:
+      port: 80 # The port that the service will be exposed on
+      targetPort: 9898 # The port that the container will be listening on
+
+containers:
+  frontend:
+    variables:
+      HELLO: WORLD
+
+resources:
+  dns: # We need a DNS record to point to the service 
+    type: dns

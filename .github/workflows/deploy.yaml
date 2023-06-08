@@ -1,0 +1,70 @@
+name: Deploy Akshita0-podinfo-test
+
+on:
+  push:
+    branches: main
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ECR: 675957821105.dkr.ecr.us-east-1.amazonaws.com
+  IMAGE: myapp
+
+jobs:
+  deploy:
+    name: Build & Notify Humanitec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Tag with SHA
+        run: echo "TAG=`echo $GITHUB_SHA | cut -c 1-7`" >> $GITHUB_ENV
+
+      - run: |
+          aws ecr get-login-password --region us-east-1 \
+            | docker login \
+                --username $username \
+                --password-stdin \
+                $ECR
+        env:
+          username: ${{ secrets.ECR_USER }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_POC_12 }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_POC_12 }}
+
+      - run: docker build --platform linux/amd64 . -t $ECR/$IMAGE:$TAG
+      - run: docker push $ECR/$IMAGE:$TAG
+
+      - name: Inform Humanitec
+        run: |-
+          curl \
+            --request POST 'https://api.humanitec.io/orgs/${{ secrets.HUMANITEC_ORG_ID_POC_12 }}/images/myapp/builds' \
+            --header 'Authorization: Bearer ${{ secrets.HUMANITEC_TOKEN_POC_12 }}' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "branch": "'$GITHUB_REF_NAME'",
+                "commit": "'$GITHUB_SHA'",
+                "image": "'$ECR/$IMAGE:$TAG'",
+                "tags": ["'$TAG'"]
+            }'
+      - name: Deploy using Score
+        run: |
+          wget https://github.com/score-spec/score-humanitec/releases/download/0.4.0/score-humanitec_0.4.0_linux_amd64.tar.gz
+          tar -xvzf ./score-humanitec_0.4.0_linux_amd64.tar.gz
+
+          cat <<EOF > humanitec.score.yaml
+          apiVersion: humanitec.org/v1b1
+          spec:
+            ingress:
+              rules:
+                "\${resources.dns}": # This is the DNS record that we defined in the resources section
+                  http:
+                    "/":
+                      type: prefix
+                      port: 80
+          containers:
+            frontend:
+              image: $ECR/$IMAGE:$TAG
+          EOF
+
+          ./score-humanitec delta --env development --overrides ./humanitec.score.yaml --app akshita0-podinfo-test --org="${{ secrets.HUMANITEC_ORG_ID_POC_12 }}" --token "${{ secrets.HUMANITEC_TOKEN_POC_12 }}" --deploy
