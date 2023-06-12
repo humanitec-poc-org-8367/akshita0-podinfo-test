@@ -30,8 +30,6 @@ resources:
       host:
       port:    
   assets:
-    type: s3
-    properties:
-      bucket:
     type: eks
     properties:
+      cluster:
