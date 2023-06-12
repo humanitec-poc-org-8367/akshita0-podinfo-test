@@ -114,12 +114,8 @@ resource "humanitec_resource_definition" "eks" {
 
   criteria = [
     {
-      app_id   = "test-app"
-      env_type = "development1"
-    },
-    {
-      app_id   = "test-app"
-      env_type = "staging1"
+      app_id   = "akshita0-podinfo-test"
+      env_type = "development"
     }
   ]
 }
