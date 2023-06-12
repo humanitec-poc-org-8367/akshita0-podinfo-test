@@ -1,20 +1,35 @@
 apiVersion: score.dev/v1b1
 
 metadata:
-  name: "akshita0-podinfo-test"
+  name: akshita0-podinfo-test
 
+# Define the ports that this service exposes
 service:
   ports:
     www:
       port: 80 # The port that the service will be exposed on
-      targetPort: 9898 # The port that the container will be listening on
+      targetPort: 3000 # The port that the container will be listening on
 
+# Define the containers that make up this service
 containers:
-  frontend:
-    variables:
-      HELLO: WORLD
-      test: test1
+  hello:
+    image: busybox
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo Hello World!; env; sleep 5; done"]
 
+# Define the resources that this service needs
 resources:
   dns: # We need a DNS record to point to the service 
     type: dns
+  db:  # We need a database to store data
+    type: mysql
+    properties:
+      name:
+      username:
+      password:
+      host:
+      port:    
+  assets:
+    type: ukg-pov-akshita-2-cluster
+    properties:
+      cluster:
