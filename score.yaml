@@ -29,7 +29,4 @@ resources:
       password:
       host:
       port:    
-  assets:
-    type: ukg-pov-akshita-2-cluster
-    properties:
-      cluster:
+
