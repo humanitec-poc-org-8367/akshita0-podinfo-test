@@ -94,28 +94,3 @@ resource "aws_security_group_rule" "cluster_outbound" {
   type                     = "egress"
 }
 
-resource "humanitec_resource_definition" "eks" {
-  id          = "${var.project}-cluster"
-  name        = "${var.project}-cluster"
-  type        = "k8s-cluster"
-  driver_type = "humanitec/k8s-cluster-eks"
-
-  driver_inputs = {
-    values = {
-      "loadbalancer" = "1.1.1.1"
-      "name"         = "${var.project}-cluster"
-      "project_id"   = "${var.project}-cluster"
-      "zone"         = "us-east-2"
-    }
-    secrets = {
-      "credentials" = "{}"
-    }
-  }
-
-  criteria = [
-    {
-      app_id   = "akshita0-podinfo-test"
-      env_type = "qa-test"
-    }
-  ]
-}
