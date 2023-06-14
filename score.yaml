@@ -29,6 +29,5 @@ resources:
       password:
       host:
       port: 
-asset:
-  type: ukg-pov-akshita-2-cluster
+
 
