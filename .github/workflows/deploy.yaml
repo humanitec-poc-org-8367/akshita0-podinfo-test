@@ -67,4 +67,4 @@ jobs:
               image: $ECR/$IMAGE:$TAG
           EOF
 
-          ./score-humanitec delta --env development1 --overrides ./humanitec.score.yaml --app akshita0-podinfo-test --org="${{ secrets.HUMANITEC_ORG_ID_POC_12 }}" --token "${{ secrets.HUMANITEC_TOKEN_POC_12 }}" --deploy
+          ./score-humanitec delta --env qa-test --overrides ./humanitec.score.yaml --app akshita0-podinfo-test --org="${{ secrets.HUMANITEC_ORG_ID_POC_12 }}" --token "${{ secrets.HUMANITEC_TOKEN_POC_12 }}" --deploy
